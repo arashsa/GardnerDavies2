@@ -139,7 +139,7 @@ def read_cg3_sentence(cg3_file):
     """
     Reads a cg3 file and returns a list of each sentence removing numbers, and unknown words.
     :param cg3_file: path to file
-    :return: list of words
+    :return: list of sentences
     """
     rx_token = re.compile("^\"<(.+?)>\"$")
     rx_attributes = re.compile("^\s+\".+?\"\s+.+$")
