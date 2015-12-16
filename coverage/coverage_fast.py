@@ -1,9 +1,10 @@
 import json
+import sys
 
 
 class Coverage:
     def __init__(self):
-        super().__init__()
+        # super().__init__()
         self.kiap = json.load(open('/Users/arashsaidi/PycharmProjects/GardnerDavies2/coverage/kiap.txt'))
         self.kiap_count = int(open('/Users/arashsaidi/PycharmProjects/GardnerDavies2/coverage/count_kiap.txt').readline())
         self.lbk = json.load(open('/Users/arashsaidi/PycharmProjects/GardnerDavies2/coverage/lbk.txt'))
@@ -17,7 +18,7 @@ class Coverage:
         :return: None
         """
         coverage = 0
-        with open(list_to_check) as f:
+        with open(list_to_check, encoding='utf-8') as f:
             word_list = f.readlines()
             count = 1
             for word in word_list:
@@ -38,7 +39,7 @@ class Coverage:
         :return:
         """
         coverage = 0
-        with open(list_to_check) as f:
+        with open(list_to_check, encoding='utf-8') as f:
             word_list = f.readlines()
             count = 1
             for word in word_list:
@@ -53,7 +54,7 @@ class Coverage:
 
     def run_kiap_2(self, list_to_check, n):
         coverage = 0
-        with open(list_to_check) as f:
+        with open(list_to_check, encoding='utf-8') as f:
             word_list = f.readlines()
             count = 1
             for word in word_list:
@@ -69,7 +70,7 @@ class Coverage:
 
     def run_lbk_2(self, list_to_check, n):
         coverage = 0
-        with open(list_to_check) as f:
+        with open(list_to_check, encoding='utf-8') as f:
             word_list = f.readlines()
             count = 1
             for word in word_list:
@@ -84,7 +85,7 @@ class Coverage:
 
     def run_kiap_3(self, list_to_check, n):
         coverage = 0
-        with open(list_to_check) as f:
+        with open(list_to_check, encoding='utf-8') as f:
             word_list = f.readlines()
             count = 1
             for word in word_list:
@@ -99,7 +100,7 @@ class Coverage:
 
     def run_lbk_3(self, list_to_check, n):
         coverage = 0
-        with open(list_to_check) as f:
+        with open(list_to_check, encoding='utf-8') as f:
             word_list = f.readlines()
             count = 1
             for word in word_list:
@@ -113,7 +114,17 @@ class Coverage:
         return coverage / self.lbk_count * 100
 
 if __name__ == '__main__':
+    """
+    Runs with argv.1 filename of list, argv.2 as nr of words to check
+    """
     test = Coverage()
-    kiap = test.run_kiap('akademisk-ordlist-g-og-d-sammenslått-siste.txt', 750)
-    lbk = test.run_lbk('akademisk-ordlist-g-og-d-sammenslått-siste.txt', 750)
-    print(kiap, lbk)
+    if len(sys.argv) > 1:
+        print(sys.argv[1])
+        kiap = test.run_kiap(sys.argv[1], sys.argv[2])
+        lbk = test.run_lbk(sys.argv[1], sys.argv[2])
+        print(kiap, lbk)
+    else:
+        # kiap = test.run_kiap('lista.txt', 750)
+        # lbk = test.run_lbk('lista.txt', 750)
+        # print(kiap, lbk)
+        print('To run file: python3 word_list_file_name nr_of_words_to_check')
