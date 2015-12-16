@@ -114,6 +114,6 @@ class Coverage:
 
 if __name__ == '__main__':
     test = Coverage()
-    kiap = test.run_kiap('akademisk-ordliste-5.769_6.907_1.138_2.6_0.2_0.7_3.2.txt', 750)
-    lbk = test.run_lbk('akademisk-ordliste-5.769_6.907_1.138_2.6_0.2_0.7_3.2.txt', 750)
+    kiap = test.run_kiap('akademisk-ordlist-g-og-d-sammenslått-siste.txt', 750)
+    lbk = test.run_lbk('akademisk-ordlist-g-og-d-sammenslått-siste.txt', 750)
     print(kiap, lbk)
