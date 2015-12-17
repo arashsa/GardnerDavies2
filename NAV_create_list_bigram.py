@@ -18,7 +18,7 @@ class AVL:
         """
         # Directory to corpus
         self.corpus_directory = '/Users/arashsaidi/Work/Corpus/DUO_LBK_Academic/'
-        self.academic_corpus_length = 91223188
+        self.academic_corpus_length = 0
         self.academic_departments = [
             'Det_humanistiske_fakultet',
             'Det_juridiske_fakultet',
@@ -29,9 +29,24 @@ class AVL:
             'Det_teologiske_fakultet',
             'Det_utdanningsvitenskapelige_fakultet'
         ]
-        self.department_lengths = [39676161, 4399816, 5563306, 9418080, 292826, 12690717, 3261491, 15920791]
-        self.non_academic_corpus = ''
-        self.non_academic_corpus_length = 587469476
+        self.department_lengths = []
+        self.non_academic_corpus_length = 0
+
+    def get_corpus_lengths(self):
+        """
+        Adds counts for corpus and sub-corpus
+        :return:
+        """
+        f = open('counts_bigram/word_count_academic.txt')
+        self.academic_corpus_length = int(f.readline())
+
+        with open('bigram_counts/word_count_departments.txt') as f:
+            for lines in f.readlines():
+                self.department_lengths.append(int(lines.split(' ')[1]))
+
+        f = open('counts_bigram/word_count_non_academic.txt')
+        self.academic_corpus_length = int(f.readline())
+
 
     @staticmethod
     def store_dict(counts, file_name):
@@ -89,10 +104,14 @@ class AVL:
                     if f.endswith('.obt') and os.stat(os.path.join(subdir, f)).st_size > 0:
                         # Document as list
                         document = read_cg3.read_cg3(os.path.join(subdir, f))
+                        prev = '<doc>'
                         for w in document:
-                            self.add_count_to_dict(total_dict, w)  # Add words to total dictionary
-                            self.add_count_to_dict(million_dict, w)  # Add words to million dictionary
-                            self.add_count_to_dict(department_dict, w)  # Add words to department dictionary
+                            w_bigram = prev + ' ' + w
+                            prev = w
+                            print(w_bigram)
+                            self.add_count_to_dict(total_dict, w_bigram)  # Add words to total dictionary
+                            self.add_count_to_dict(million_dict, w_bigram)  # Add words to million dictionary
+                            self.add_count_to_dict(department_dict, w_bigram)  # Add words to department dictionary
                             million_counter += 1  # Increment million count
                             department_counter += 1  # Increment department count
                             total_count += 1  # Increment total count
@@ -100,52 +119,27 @@ class AVL:
                             # Million words, write dict to file, reset
                             if million_counter > 1000000:
                                 self.remove_threshold(million_dict)
-                                self.store_dict(million_dict, 'counts/millions/' + str(million_filename) + '.txt')
+                                self.store_dict(million_dict, 'counts_bigram/millions/' +
+                                                str(million_filename) + '.txt')
                                 million_filename += 1
                                 million_counter = 0
                                 million_dict = {}
 
             # Storing department dictionaries
             self.remove_threshold(department_dict)
-            self.store_dict(department_dict, 'counts/' + department)
-            with open('counts/word_count_departments.txt', 'a') as f:
+            self.store_dict(department_dict, 'counts_bigram/' + department)
+            with open('counts_bigram/word_count_departments.txt', 'a') as f:
                 f.write(department + ' ' + str(department_counter) + '\n')
 
         # Storing academic dictionaries
         self.remove_threshold(total_dict)
-        self.store_dict(total_dict, 'counts/dictionary_academic.txt')
-        with open('counts/word_count_academic', 'w') as f:
-            f.write(str(total_count))
-
-    def setup_non_academic(self):
-        """
-        Setup for LBK. Json count files are produced.
-        :return:
-        """
-        # Total count non-academic
-        total_dict = {}
-        total_count = 0
-        print('Reading files in: non-academic corpus')
-        for subdir, dirs, files in os.walk(self.corpus_directory + self.non_academic_corpus):
-            for f in files:
-                if f.endswith('.okl'):
-                    for sentence in read_lbk.read_cg3(codecs.open(os.path.join(subdir, f), 'r', 'ISO-8859-1')):
-                        for word in sentence:
-                            if not isinstance(word, str):
-                                if '$' not in word[1]:
-                                    current_word = word[1].replace('"', '')
-                                    self.add_count_to_dict(total_dict, current_word)
-                                    total_count += 1
-
-        # Storing non-academic dictionaries
-        self.remove_threshold(total_dict)
-        self.store_dict(total_dict, 'counts/dictionary_non_academic.txt')
-        with open('counts/word_count_non_academic', 'w') as f:
+        self.store_dict(total_dict, 'counts_bigram/dictionary_academic.txt')
+        with open('counts_bigram/word_count_academic.txt', 'w') as f:
             f.write(str(total_count))
 
     def setup_non_academic_nowac(self):
         """
-        Setup for LBK. Json count files are produced.
+        Setup for nowac. Json count files are produced.
         :return:
         """
         # Total count non-academic
@@ -166,7 +160,7 @@ class AVL:
         # Storing non-academic dictionaries
         self.remove_threshold(total_dict)
         self.store_dict(total_dict, 'counts/dictionary_non_academic.txt')
-        with open('counts/word_count_non_academic', 'w') as f:
+        with open('counts/word_count_non_academic.txt', 'w') as f:
             f.write(str(total_count))
 
     def store_included_excluded(self, included, excluded, name):
@@ -442,10 +436,9 @@ class AVL:
 
 if __name__ == '__main__':
     test = AVL()
-    test.make_lists_and_run_coverage()
-
-    # test.setup_academic()
+    test.setup_academic()
     # test.setup_non_academic_nowac()
+    # test.get_corpus_lengths()
 
     # Test from 1 - 5
     # test.ratio(2.8)

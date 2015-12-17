@@ -119,9 +119,8 @@ if __name__ == '__main__':
     """
     test = Coverage()
     if len(sys.argv) > 1:
-        print(sys.argv[1])
-        kiap = test.run_kiap(sys.argv[1], sys.argv[2])
-        lbk = test.run_lbk(sys.argv[1], sys.argv[2])
+        kiap = test.run_kiap(sys.argv[1], int(sys.argv[2]))
+        lbk = test.run_lbk(sys.argv[1], int(sys.argv[2]))
         print(kiap, lbk)
     else:
         # kiap = test.run_kiap('lista.txt', 750)
