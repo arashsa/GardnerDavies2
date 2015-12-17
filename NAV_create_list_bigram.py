@@ -108,7 +108,7 @@ class AVL:
                         for w in document:
                             w_bigram = prev + ' ' + w
                             prev = w
-                            print(w_bigram)
+                            # print(w_bigram)
                             self.add_count_to_dict(total_dict, w_bigram)  # Add words to total dictionary
                             self.add_count_to_dict(million_dict, w_bigram)  # Add words to million dictionary
                             self.add_count_to_dict(department_dict, w_bigram)  # Add words to department dictionary
@@ -147,12 +147,14 @@ class AVL:
         total_count = 0
         print('Reading files in: non-academic corpus')
         with open('/Users/arashsaidi/Work/Corpus/nowac-1.1', errors='ignore') as f:
+            prev = '<doc>'
             for obt in f:
                 word = obt.replace('\n', '').split('\t')
                 if len(word) > 2:
                     if '$' not in word[1] and word[2] != 'ukjent':
-                        current_word = word[1]
-                        self.add_count_to_dict(total_dict, current_word)
+                        bigram = prev + ' ' + word[1]
+                        prev = word[1]
+                        self.add_count_to_dict(total_dict, bigram)
                         total_count += 1
 
         print(total_count)
@@ -436,8 +438,8 @@ class AVL:
 
 if __name__ == '__main__':
     test = AVL()
-    test.setup_academic()
-    # test.setup_non_academic_nowac()
+    # test.setup_academic()
+    test.setup_non_academic_nowac()
     # test.get_corpus_lengths()
 
     # Test from 1 - 5
