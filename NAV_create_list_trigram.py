@@ -34,16 +34,16 @@ class AVL:
         Adds counts for corpus and sub-corpus
         :return:
         """
-        f = open('counts_bigram/word_count_academic.txt')
+        f = open('counts_trigram/word_count_academic.txt')
         self.academic_corpus_length = int(f.readline())
         # print(self.academic_corpus_length)
 
-        with open('counts_bigram/word_count_departments.txt') as f:
+        with open('counts_trigram/word_count_departments.txt') as f:
             for lines in f.readlines():
                 self.department_lengths.append(int(lines.split(' ')[1]))
         # print(self.department_lengths)
 
-        f = open('counts_bigram/word_count_non_academic.txt')
+        f = open('counts_trigram/word_count_non_academic.txt')
         self.non_academic_corpus_length = int(f.readline())
         # print(self.non_academic_corpus_length)
 
@@ -104,14 +104,15 @@ class AVL:
                     if f.endswith('.obt') and os.stat(os.path.join(subdir, f)).st_size > 0:
                         # Document as list
                         document = read_cg3.read_cg3(os.path.join(subdir, f))
-                        prev = '<doc>'
+                        prev1 = '<doc>'
+                        prev2 = '<doc>'
                         for w in document:
-                            w_bigram = prev + ' ' + w
-                            prev = w
-                            # print(w_bigram)
-                            self.add_count_to_dict(total_dict, w_bigram)  # Add words to total dictionary
-                            self.add_count_to_dict(million_dict, w_bigram)  # Add words to million dictionary
-                            self.add_count_to_dict(department_dict, w_bigram)  # Add words to department dictionary
+                            w_trigram = prev1 + ' ' + prev2 + ' ' + w
+                            prev1 = prev2
+                            prev2 = w
+                            self.add_count_to_dict(total_dict, w_trigram)  # Add words to total dictionary
+                            self.add_count_to_dict(million_dict, w_trigram)  # Add words to million dictionary
+                            self.add_count_to_dict(department_dict, w_trigram)  # Add words to department dictionary
                             million_counter += 1  # Increment million count
                             department_counter += 1  # Increment department count
                             total_count += 1  # Increment total count
@@ -119,7 +120,7 @@ class AVL:
                             # Million words, write dict to file, reset
                             if million_counter > 1000000:
                                 self.remove_threshold(million_dict)
-                                self.store_dict(million_dict, 'counts_bigram/millions/' +
+                                self.store_dict(million_dict, 'counts_trigram/millions/' +
                                                 str(million_filename) + '.txt')
                                 million_filename += 1
                                 million_counter = 0
@@ -127,14 +128,14 @@ class AVL:
 
             # Storing department dictionaries
             self.remove_threshold(department_dict)
-            self.store_dict(department_dict, 'counts_bigram/' + department)
-            with open('counts_bigram/word_count_departments.txt', 'a') as f:
+            self.store_dict(department_dict, 'counts_trigram/' + department)
+            with open('counts_trigram/word_count_departments.txt', 'a') as f:
                 f.write(department + ' ' + str(department_counter) + '\n')
 
         # Storing academic dictionaries
         self.remove_threshold(total_dict)
-        self.store_dict(total_dict, 'counts_bigram/dictionary_academic.txt')
-        with open('counts_bigram/word_count_academic.txt', 'w') as f:
+        self.store_dict(total_dict, 'counts_trigram/dictionary_academic.txt')
+        with open('counts_trigram/word_count_academic.txt', 'w') as f:
             f.write(str(total_count))
 
     def setup_non_academic_nowac(self):
@@ -147,22 +148,24 @@ class AVL:
         total_count = 0
         print('Reading files in: non-academic corpus')
         with open('/Users/arashsaidi/Work/Corpus/nowac-1.1', errors='ignore') as f:
-            prev = '<doc>'
+            prev1 = '<doc>'
+            prev2 = '<doc>'
             for obt in f:
                 word = obt.replace('\n', '').split('\t')
                 if len(word) > 2:
                     if '$' not in word[1] and word[2] != 'ukjent':
-                        bigram = prev + ' ' + word[1]
-                        prev = word[1]
-                        self.add_count_to_dict(total_dict, bigram)
+                        w_trigram = prev1 + ' ' + prev2 + ' ' + word[1]
+                        prev1 = prev2
+                        prev2 = word[1]
+                        self.add_count_to_dict(total_dict, w_trigram)
                         total_count += 1
 
         print(total_count)
         print(len(total_dict))
         # Storing non-academic dictionaries
         self.remove_threshold(total_dict)
-        self.store_dict(total_dict, 'counts_bigram/dictionary_non_academic.txt')
-        with open('counts_bigram/word_count_non_academic.txt', 'w') as f:
+        self.store_dict(total_dict, 'counts_trigram/dictionary_non_academic.txt')
+        with open('counts_trigram/word_count_non_academic.txt', 'w') as f:
             f.write(str(total_count))
 
     def store_included_excluded(self, included, excluded, name):
@@ -188,7 +191,7 @@ class AVL:
                     break
 
         count = 1
-        with open('lists_bigram/' + name + '_excluded_sorted.txt', 'w') as f:
+        with open('lists_trigram/' + name + '_excluded_sorted.txt', 'w') as f:
             for w in sorted_excluded:
                 f.write('{} {}\n'.format(w[0], w[1]))
                 count += 1
@@ -205,7 +208,7 @@ class AVL:
         """
         sorted_included = sorted(included.items(), key=operator.itemgetter(1), reverse=True)
 
-        with open('lists_bigram/' + name + '_included_sorted.txt', 'w') as f:
+        with open('lists_trigram/' + name + '_included_sorted.txt', 'w') as f:
             for w in sorted_included:
                 f.write('{} {}\n'.format(w[0], w[1]))
 
@@ -217,8 +220,8 @@ class AVL:
         """
         included = {}
         excluded = {}
-        academic = json.load(open('counts_bigram/dictionary_academic.txt'))
-        non_academic = json.load(open('counts_bigram/dictionary_non_academic.txt'))
+        academic = json.load(open('counts_trigram/dictionary_academic.txt'))
+        non_academic = json.load(open('counts_trigram/dictionary_non_academic.txt'))
 
         # Iterates through academic dictionary
         for key, value in academic.items():
@@ -244,11 +247,11 @@ class AVL:
         """
         included = {}
         excluded = {}
-        academic = json.load(open('lists_bigram/ratio_included.txt'))
+        academic = json.load(open('lists_trigram/ratio_included.txt'))
         departments = []
         # Get each
         for dep in self.academic_departments:
-            departments.append(json.load(open('counts_bigram/' + dep)))
+            departments.append(json.load(open('counts_trigram/' + dep)))
 
         # Checking if word (lemma) is in at least x of 8, and has at least rate% expected freq
         for key, value in academic.items():
@@ -273,7 +276,7 @@ class AVL:
         :param rate: the dispersion rate to exclude words
         :return:
         """
-        academic = json.load(open('lists_bigram/range_included.txt'))
+        academic = json.load(open('lists_trigram/range_included.txt'))
         included = {}
         excluded = {}
         parts = []
@@ -282,9 +285,9 @@ class AVL:
         # TODO: get number of files
         n = 91.  # hardcoded value
 
-        for subdir, dirs, files in os.walk('counts_bigram/millions/'):
+        for subdir, dirs, files in os.walk('counts_trigram/millions/'):
             for f_ in files:
-                parts.append(json.load(open('counts_bigram/millions/' + f_)))
+                parts.append(json.load(open('counts_trigram/millions/' + f_)))
 
         # Get each word, go through corpus and get counts for each million tokens
         for key, value in academic.items():
@@ -329,13 +332,13 @@ class AVL:
         :param rate:
         :return:
         """
-        academic = json.load(open('lists_bigram/dispersion_included.txt'))
+        academic = json.load(open('lists_trigram/dispersion_included.txt'))
         included = {}
         excluded = {}
 
         departments = []
         for dep in self.academic_departments:
-            departments.append(json.load(open('counts_bigram/' + dep)))
+            departments.append(json.load(open('counts_trigram/' + dep)))
 
         for word, value in academic.items():
             n = value / self.academic_corpus_length
@@ -398,7 +401,7 @@ if __name__ == '__main__':
     test.get_corpus_lengths()
 
     # Test from 1 - 5
-    # test.ratio(2.5)
+    test.ratio(2.5)
 
     # range, number of faculties (x of 8)
     # test.range(0.4, 6)
