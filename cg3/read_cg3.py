@@ -89,7 +89,7 @@ def read_cg3_tags(cg3_file):
     curr_sentence = []
     result = []
 
-    with open(cg3_file) as cg3_file:
+    with open(cg3_file, 'r', encoding='utf-8') as cg3_file:
         for line in cg3_file:
 
             if rx_token.match(line):

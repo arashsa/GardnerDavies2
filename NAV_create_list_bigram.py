@@ -47,7 +47,6 @@ class AVL:
         self.non_academic_corpus_length = int(f.readline())
         # print(self.non_academic_corpus_length)
 
-
     @staticmethod
     def store_dict(counts, file_name):
         """
@@ -75,6 +74,34 @@ class AVL:
         for k in list(dictionary):
             if dictionary[k] < 2:
                 del dictionary[k]
+
+    @staticmethod
+    def write_to_file(f, w):
+        """
+        stores the list to file
+        :param f: file
+        :param w: word and frequency
+        :return: None
+        """
+        f.write('{} {}\n'.format(w[0], w[1]))
+        # try:
+        #     f.write('{} {}\n'.format(w[0], w[1]))
+        # except UnicodeEncodeError:
+        #     f.write('{} {}\n'.format(w[0].encode('utf-8'), w[1]))
+
+    @staticmethod
+    def store_included(included, name):
+        """
+        Stores two dictionaries as json objects and as lists.
+        :param included: dictionary of words included
+        :param name: name of file to store in
+        :return: None
+        """
+        sorted_included = sorted(included.items(), key=operator.itemgetter(1), reverse=True)
+
+        with open('lists_bigram/' + name + '_included_sorted.txt', 'w') as f:
+            for w in sorted_included:
+                f.write('{} {}\n'.format(w[0].encode('utf-8'), w[1]))
 
     def setup_academic(self):
         """
@@ -180,39 +207,26 @@ class AVL:
 
         #  Only storing the first 5000 words
         count = 1
-        with open('lists_bigram/' + name + '_included_sorted.txt', 'w') as f:
+        with open('lists_bigram/' + name + '_included_sorted.txt', 'w', encoding='utf-8') as f:
             for w in sorted_included:
-                f.write('{} {}\n'.format(w[0], w[1]))
+                self.write_to_file(f, w)
                 count += 1
                 if count > 5000:
                     break
 
         count = 1
-        with open('lists_bigram/' + name + '_excluded_sorted.txt', 'w') as f:
+        with open('lists_bigram/' + name + '_excluded_sorted.txt', 'w', encoding='utf-8') as f:
             for w in sorted_excluded:
-                f.write('{} {}\n'.format(w[0], w[1]))
+                self.write_to_file(f, w)
                 count += 1
                 if count > 5000:
                     break
-
-    @staticmethod
-    def store_included(included, name):
-        """
-        Stores two dictionaries as json objects and as lists.
-        :param included: dictionary of words included
-        :param name: name of file to store in
-        :return:
-        """
-        sorted_included = sorted(included.items(), key=operator.itemgetter(1), reverse=True)
-
-        with open('lists_bigram/' + name + '_included_sorted.txt', 'w') as f:
-            for w in sorted_included:
-                f.write('{} {}\n'.format(w[0], w[1]))
 
     def ratio(self, rate):
         """
         Words (lemmas) must have 50% higher freq in academic part of corpus than non-academic.
         This excludes words that are frequent in a regular corpus.
+        :param rate: the rate of ratio
         :return:
         """
         included = {}
@@ -398,13 +412,13 @@ if __name__ == '__main__':
     test.get_corpus_lengths()
 
     # Test from 1 - 5
-    # test.ratio(2.5)
+    test.ratio(1)
 
     # range, number of faculties (x of 8)
     # test.range(0.4, 6)
 
     # Test from 0.6
-    # test.dispersion(0.97)
+    # test.dispersion(0.90)
 
     # Test from 3
     # test.discipline_measure(3.5, allfiles=True)
