@@ -44,4 +44,4 @@ def sort(f, tag1, tag2, n1, n2, w):
     html_file.write('</table></body></html>')
 
 if __name__ == '__main__':
-    sort('trigram_PoS.html', 'verb', False, 2, 1, 'verb_3.html')
+    sort('trigram_PoS.html', 'konj', False, 0, 1, 'konj.html')
